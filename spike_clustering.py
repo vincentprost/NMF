@@ -38,7 +38,7 @@ def svd(X, dim = "full_rank"):
 
 	S = np.shape(C)[0]
 
-	if dim == -1:
+	if dim == "full_rank":
 		dim = np.shape(C)[0]
 
 	U = np.zeros((S,dim))
