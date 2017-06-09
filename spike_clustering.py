@@ -13,6 +13,55 @@ from collections import defaultdict
 import scipy.sparse as sp
 
 
+
+
+def rank1(C):
+	l,c = np.shape(C)
+	I = 0
+	u = np.ones(l)
+	w = np.ones(c)
+	
+	diff = np.inf
+	while diff > 0:
+		w = np.transpose(u).dot(C)
+		w = w/np.linalg.norm(w)
+		u = C.dot(w)
+		u = u/np.linalg.norm(u)
+		I_ = np.transpose(u).dot(C).dot(w)
+		diff = np.abs(I - I_)
+		I = I_
+	return u, I
+
+def svd(X, dim = -1):
+
+	C = X.dot(np.transpose(X))
+
+	S = np.shape(C)[0]
+
+	if dim == -1:
+		dim = np.shape(C)[0]
+
+	U = np.zeros((S,dim))
+	I = np.zeros(dim)
+	Id = np.eye(S,dim)
+
+	R = C
+
+	for k in range(0, dim):
+
+		u, i = rank1(R)
+		
+		Z = np.zeros((S, dim))
+		Z[:,k] = u
+
+		R = R - i * Z.dot(Z.transpose())
+
+		U[:,k] = u
+		I[k] = i
+	return I, U
+
+
+
 def merge_index(V,I,C, thresh):
 		MergeFits = defaultdict(list)
 		for a in V:
@@ -169,31 +218,27 @@ def hash_read_generator(file_object,max_reads=10**15,newline='\n'):
 			
 
 
-'''
-args :
-- mat_name : numpy (.npy) file containing eigen genomes e
-- thres1 : threshold for the index part
-- thres2 : threshold for the clustering part
-'''
+
+print("load abundance matrix")
+
+input_path = "hashed_reads/"
+Kmer_Hash_Count_Files = glob.glob(os.path.join(input_path,'*.count.hash.conditioned'))
+
+abundance = []
+for f in Kmer_Hash_Count_Files:
+	m = np.fromfile(f,dtype=np.float32)
+	abundance.append(m)
+
+abundance = np.array(abundance)
+np.save("abundance", abundance)
 
 
 
-try:
-	args = sys.argv[1:]
-	mat_name = args[0]
-	thres1 = float(args[1])
-	thres2 = float(args[2])
-	print(mat_name, thres1, thres2)
-except:
-	print("usage eg. :")
-	print("python spike_clustering svd_full.npy 0.6 0.6")
-	exit()
-
-
-
-abundance = np.load(mat_name)
 vectors = abundance.transpose()
 
+
+thres1 = 0.6
+thres2 = 0.6
 
 Index = lsi_cluster_index(vectors, thres1)
 clusters = lsi_cluster_part(vectors, Index, thres2)
