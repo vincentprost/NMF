@@ -32,7 +32,7 @@ def rank1(C):
 		I = I_
 	return u, I
 
-def svd(X, dim = -1):
+def svd(X, dim = "full_rank"):
 
 	C = X.dot(np.transpose(X))
 
@@ -233,9 +233,15 @@ abundance = np.array(abundance)
 np.save("abundance", abundance)
 
 
+print("compute SVD")
 
-vectors = abundance.transpose()
+I, U = svd(abundance)
+I = np.diag(I)
+V = np.linalg.pinv(I).dot(U.transpose()).dot(abundance)
+vectors = V.transpose()
 
+
+print("cluster eigen-genomes")
 
 thres1 = 0.6
 thres2 = 0.6
@@ -279,7 +285,7 @@ np.save('kmer_cluster_sizes', cluster_sizes)
 
 
 ####  write_partition_part
-
+print("partition reads")
 
 cluster_probs = dict(enumerate(CP))
 
@@ -310,7 +316,7 @@ for fr in range(0, len(Hashq_Files)):
 		count += 1
 		spike = 0
 
-		sys.stdout.write("read partitionned : %d%%   \r" % count )
+		sys.stdout.write("read partitionned : %d   \r" % count )
 		sys.stdout.flush()
 
 		name = a[0]
