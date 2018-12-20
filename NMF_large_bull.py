@@ -120,7 +120,7 @@ for k in sections[:-1]:
 	D = spams.trainDL(X, **param)
 
 
-np.save("matrices/D" + name + name2, D)
+np.save(wd + "matrices/D" + name + name2, D)
 
 
 def _extract_lasso_param(f_param):
@@ -139,7 +139,7 @@ lparam['numThreads'] = 1
 
 chunk_size = 2**17
 iter_nb = int(nz/chunk_size + 1)
-alpha = np.memmap('matrices/kmer_clusters' + name + name2 , dtype='int16', mode='w+', shape=(5, 2**hash_size), order = 'F')
+alpha = np.memmap(wd + 'matrices/kmer_clusters' + name + name2 , dtype='int16', mode='w+', shape=(5, 2**hash_size), order = 'F')
 
 
 nz_code = 0
@@ -218,8 +218,8 @@ print(indptr)
 print(indices)
 
 
-np.save("matrices/data" + name + name2, data)
-np.save("matrices/indptr" + name + name2, indptr)
-np.save("matrices/indices" + name + name2, indices)
+np.save(wd + "matrices/data" + name + name2, data)
+np.save(wd + "matrices/indptr" + name + name2, indptr)
+np.save(wd + "matrices/indices" + name + name2, indices)
 
 
